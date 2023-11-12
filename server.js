@@ -5,30 +5,18 @@ const { graphqlHTTP } = require('express-graphql')
 const { loadFilesSync } = require('@graphql-tools/load-files')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
 
-const products = require('./products/products.model')
-const orders = require('./orders/orders.model')
-
 const typesArray = loadFilesSync(path.join(__dirname, '**/**.graphql'))
+const resolversArray = loadFilesSync(path.join(__dirname, '**/**.resolvers.js'))
 
 const schema = makeExecutableSchema({
     typeDefs: typesArray,
-    resolvers: {
-        Query: {
-            products: async (parent) => parent.products,
-            orders: async (parent) => parent.orders
-        }
-    }
+    resolvers: resolversArray
 })
 
 const app = express()
-const rootValue = {
-    products,
-    orders
-}
 
 app.use('/graphql', graphqlHTTP({
     schema,
-    rootValue,
     graphiql: true
 }))
 

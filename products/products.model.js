@@ -11,4 +11,10 @@ const products = [
     }
 ]
 
-module.exports = products
+function getAllProducts() {
+    return products
+}
+
+module.exports = {
+    getAllProducts
+}
