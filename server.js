@@ -1,73 +1,34 @@
+const path = require('node:path')
 const express = require('express')
-const { buildSchema } = require('graphql')
 const { graphqlHTTP } = require('express-graphql')
 
-const schema = buildSchema(`
-    type Query {
-        products: [Product]
-        orders: [Order]
-    }
-    
-    type Product {
-        id: ID!
-        description: String!
-        price: Float!
-        reviews: [Review]
-    }
-    
-    type Review {
-        rating: Int!
-        comment: String
-    }
-    
-    type Order {
-        date: String!
-        subtotal: Float!
-        items: [OrderItem]
-    }
-    
-    type OrderItem {
-        product: Product!
-        quantity: Int!
-    }
-`)
+const { loadFilesSync } = require('@graphql-tools/load-files')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
 
-const root = {
-    products: [
-        {
-            id: 'red-shoe',
-            description: 'A red shoe',
-            price: 42.50
-        },
-        {
-            id: 'blue-jean',
-            description: 'A blue jean',
-            price: 20.00
+const products = require('./products/products.model')
+const orders = require('./orders/orders.model')
+
+const typesArray = loadFilesSync(path.join(__dirname, '**/**.graphql'))
+
+const schema = makeExecutableSchema({
+    typeDefs: typesArray,
+    resolvers: {
+        Query: {
+            products: async (parent) => parent.products,
+            orders: async (parent) => parent.orders
         }
-    ],
-    orders: [
-        {
-            date: '2005-05-05',
-            subtotal: 85.00,
-            items: [
-                {
-                  product: {
-                    id: 'red-shoe',
-                    description: 'A red shoe',
-                    price: 42.50
-                  },
-                  quantity: 2
-                }
-            ]
-        }
-    ]
-}
+    }
+})
 
 const app = express()
+const rootValue = {
+    products,
+    orders
+}
 
 app.use('/graphql', graphqlHTTP({
     schema,
-    rootValue: root,
+    rootValue,
     graphiql: true
 }))
 
