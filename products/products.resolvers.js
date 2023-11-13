@@ -1,7 +1,9 @@
-const { getAllProducts } = require('./products.model')
+const { getAllProducts, getProductsByPrice, getProductByID } = require('./products.model')
 
 module.exports = {
     Query: {
-        products: async (parent) => getAllProducts()
+        products: () => getAllProducts(),
+        productsByPrice: (_, { minPrice, maxPrice }) => getProductsByPrice(minPrice, maxPrice),
+        product: (_, { id }) => getProductByID(id)
     }
 }
