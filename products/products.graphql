@@ -1,7 +1,14 @@
+# Root level type
 type Query {
     products: [Product],
     productsByPrice(minPrice: Float!, maxPrice: Float!): [Product],
     product(id: ID!): Product
+}
+
+# Root level type
+type Mutation {
+    addNewProduct(id: ID!, description: String!, price: Float!): Product
+    addNewProductReview(id: ID!, rating: Int!, comment: String): Review
 }
 
 type Product {
